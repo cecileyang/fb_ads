@@ -7,6 +7,8 @@ from facebook_business.adobjects.campaign import Campaign
 from facebook_business.adobjects.targetingsearch import TargetingSearch
 from facebook_business.api import FacebookAdsApi
 
+from stability_ai import generate_image_by_prompt
+
 # Business settings - Accounts - Ad accounts - ID
 ACCOUNT_ID = 'act_16digitNumber'
 
@@ -24,7 +26,7 @@ def connect_to_ad_account(app_id, app_secret, access_token):
 def create_campaign(ad_account):
   fields = []
   params = {
-    'name': 'BeautyCampaign',
+    'name': 'RocketCampaign',
     'objective': 'LINK_CLICKS',
     'status': 'PAUSED',
     'special_ad_categories': [],
@@ -50,7 +52,7 @@ def create_ads_set(ad_account, campaign_id):
   # budget unit is cent
   fields = []
   params = {
-    'name': 'BeautyAdSetCode',
+    'name': 'RocketAdSet',
     'campaign_id': campaign_id,
     'daily_budget': 200,
     'billing_event': 'IMPRESSIONS',
@@ -65,10 +67,10 @@ def create_ads_set(ad_account, campaign_id):
   print(adset)
   return adset
 
-def upload_image(ad_account):
+def upload_image(ad_account, file_name):
   fields = []
   params = {
-    'filename': 'path_to_local_file_including_extension'
+    'filename': file_name
   }
   image = ad_account.create_ad_image(fields=fields, params=params)
   print('image = ', image, ',image_hash = ', image[AdImage.Field.hash])
@@ -77,7 +79,7 @@ def upload_image(ad_account):
 def create_ad_creative(ad_account, image_hash):
   fields = []
   params = {
-    'name': 'KraveBeautyFirstCodeNameTest',
+    'name': 'HoustonCodeNameTest',
     'object_story_spec': {
       'page_id': 'xxxx', # created manually
       'link_data': {
@@ -93,7 +95,7 @@ def create_ad_creative(ad_account, image_hash):
 def create_ad(ad_account, creative, adset_id):
   fields = []
   params = {
-    'name': 'KraveBeautyAd',
+    'name': 'RocketAd',
     'adset_id': adset_id,
     'creative': {'creative_id': creative[AdCreative.Field.id]},
     'status': 'PAUSED'
@@ -118,8 +120,13 @@ def main():
   print('='*30, 'ads_set', '='*30)
   ads_set = create_ads_set(ad_account, campaign[Campaign.Field.id])
 
+  print('='*30, 'generate image', '='*30)
+  prompt = "houston, we are a 'go' for launch!"
+  file_name = 'houston.png'
+  generate_image_by_prompt(prompt=prompt, file_name=file_name, seed=1)
+
   print('='*30, 'upload_image', '='*30)
-  image = upload_image(ad_account)
+  image = upload_image(ad_account, file_name=file_name)
 
   print('='*30, 'ad_creative', '='*30)
   creative = create_ad_creative(ad_account, image[AdImage.Field.hash])
